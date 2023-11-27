@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: category
+  config:
+    import: "optional:configserver:http://config:8088"
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://postgres:5432/category
+    username: category
+    password: category@123
+    driver-class-name: org.postgresql.Driver
