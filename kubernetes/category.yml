@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: category
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: category
+  template:
+    metadata:
+      labels:
+        app: category
+    spec:
+      containers:
+        - name: category
+          image: category:1.0.0
+          ports:
+            - containerPort: 8082
+      initContainers:
+        - name: category-postgres
+          image: busybox
+          command: [ 'sh', '-c', 'until nslookup postgres.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for postgres; sleep 2; done' ]
+        - name: category-eureka
+          image: busybox
+          command: [ 'sh', '-c', 'until nslookup eureka.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for eureka; sleep 2; done' ]
+        - name: category-config
+          image: busybox
+          command: [ 'sh', '-c', 'until nslookup config.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for config; sleep 2; done' ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: category
+spec:
+  selector:
+    app: category
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082

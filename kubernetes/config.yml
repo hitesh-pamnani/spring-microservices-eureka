@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config
+  template:
+    metadata:
+      labels:
+        app: config
+    spec:
+      containers:
+        - name: config
+          image: config:1.0.0
+          ports:
+            - containerPort: 8088
+      initContainers:
+        - name: config-eureka
+          image: busybox
+          command: [ 'sh', '-c', 'until nslookup eureka.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for eureka; sleep 2; done' ]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config
+spec:
+  selector:
+    app: config
+  ports:
+    - protocol: TCP
+      port: 8088
+      targetPort: 8088
