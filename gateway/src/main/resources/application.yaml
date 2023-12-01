@@ -5,6 +5,10 @@ spring:
     import: "optional:configserver:http://config:8088"
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
       routes:
         - id: category
           uri: lb://category
